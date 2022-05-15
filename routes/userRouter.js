@@ -1,101 +1,80 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../schemas/user");
-
+const createError = require('http-errors');
+const asyncHandler = require('express-async-handler');
+const Post = require("../schemas/post");
+const Group = require("../schemas/group")
 
 //회원가입
-router.post("/join", async (req, res)=>{
-    try{
-        let obj = { email: req.body.email };
+router.post("/join", asyncHandler(async (req, res) => {
+
+        let obj = {email: req.body.email};
         let user = await User.findOne(obj);
         console.log(user);
 
-        if(user){
-            res.json({
-                message: "이메일 중복됐습니다.",
-                dupYn: "1"
-            })
-        }else{
-            obj={
+        if (user) {
+            throw createError(400, "해당 이메일 정보가 이미 존재합니다.");
+        } else {
+            obj = {
                 email: req.body.email,
                 name: req.body.name,
-                password: req.body.password,
-                salt: req.body.salt
+                password: req.body.password
             }
             user = new User(obj);
             await user.save();
             res.json({
+                success: true,
+                status: 200,
                 message: "회원가입 되었습니다.",
-                dupYn: "0"
             })
-            res.json({success: true, status: 200})
-
         }
-    }catch (err){
-        console.log(err);
-        res.json({ success: false, status: 400})
-    }
-})
+    })
+)
 
 //로그인
-router.post("/login", async(req, res)=>{
-    try{
-        await User.findOne({email: req.body.email}, async(err, user)=>{
-            if(err){
-                console.log(err);
-            }else{
-                console.log(user);
-                if(user){
-                    const obj={
-                        email: req.body.email,
-                        password: req.body.password
-                    }
-                    const user2 = await User.findOne(obj);
-                    console.log(user2);
-                    if(user2){
-                        await User.updateOne(
-                       {
-                                email: req.body.email
-                            },
-                            { $set: {loginCnt: 0} }
-                        )
-                        req.session.email = user.email;
-                        res.json({
-                            message: "로그인 됐습니다.",
-                            _id: user2._id,
-                            email: user2.email,
+router.post("/login", asyncHandler(async (req, res) => {
 
-                        })
-                    }else{
-                        await User.updateOne(
-                            {
-                                email: req.body.email
-                            },
-                            { $set: {loginCnt: user.loginCnt + 1}}
-                        )
-                        res.json({
-                            message: `아이디나 패스워드가 ${loginCnt}번 일치하지 않습니다.`
-                        })
-                        }
-                    }else{
-                    res.json({message: "아이디가 존재하지 않습니다."})
-                }
-            }
-            }
-        )
-        res.json({success: true, status: 200})
-    }catch(err){
-        console.log(err);
-        res.json({success: false, status: 400})
-
+    const user = await User.findOne({email: req.body.email, password: req.body.password});
+    if (!user) {
+        throw createError(400, '아이디 또는 비밀번호가 일치하지 않습니다.')
+    } else {
+        req.session.save(()=>{
+            req.session.userId = user.userId;
+            res.json({
+                success: true,
+                status: 200,
+                data: user,
+                message: 'login success'})
+        })
     }
-})
+}))
 
-router.get("/logout", (req, res)=>{
-    req.session.destroy(()=>{
-        res.json({success: true, status: 200 })
+router.get("/logout", asyncHandler(async (req, res) => {
+    req.session.destroy(() => {
+        res.json({ data: null, success: true, status: 200})
     })
 
-})
+}))
+
+//사용자정보 get
+router.get("/me", asyncHandler(async(req, res)=>{
+    if(!req.session.userId) {
+        throw createError({
+            status: 400,
+            message: 'userid없음',
+            data: null})
+    }else{
+        const finduser = await User.findOne({
+            where: {userId: req.session.userId}
+        }).catch((err)=> res.json(err));
+
+        res.json({
+            data: finduser,
+            success: true,
+            status: 200
+        })
+    }
+}))
 
 module.exports = router;
