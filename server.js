@@ -28,6 +28,15 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 app.use("/user", require("./routes/userRouter"));
+app.use("/study", require("./routes/studyRouter"));
+const createError = require('http-errors');
+
+app.use((req, res, next) => next(createError(404)));
+
+app.use((err, req, res, next) => {
+    const { status, message } = err;
+    res.status(status || 500).json({ status, message });
+});
 
 app.listen(3000, ()=>{
     console.log("mbti start");
