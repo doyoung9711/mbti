@@ -40,7 +40,7 @@ router.post("/login", asyncHandler(async (req, res) => {
         throw createError(400, '아이디 또는 비밀번호가 일치하지 않습니다.')
     } else {
         req.session.save(()=>{
-            req.session.userId = user.userId;
+            req.session.userId = user._id;
             res.json({
                 success: true,
                 status: 200,
@@ -66,7 +66,7 @@ router.get("/me", asyncHandler(async(req, res)=>{
             data: null})
     }else{
         const finduser = await User.findOne({
-            where: {userId: req.session.userId}
+            where: {_id: req.session.userId}
         }).catch((err)=> res.json(err));
 
         res.json({

@@ -15,7 +15,7 @@ router.post("/",asyncHandler(async (req, res)=> {
         throw createError(400, "해당 그룹이름이 이미 존재합니다.")
     } else {
         obj = {
-            writer: await User.findOne(name),
+            writer: await User.findOne({_id: req.session.userId}),
             title: req.body.title,
             userCount: req.body.userCount,
             mbti: req.body.mbti //원하는 mbti
