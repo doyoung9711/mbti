@@ -17,6 +17,7 @@
     "express-session": "^1.17.3",
     "git": "^0.1.5",
     "http-errors": "^2.0.0",
+    "method-override": "^3.0.0",
     "middleware": "^1.0.0",
     "mongoose": "^6.3.1",
     "node-status": "^1.0.0",

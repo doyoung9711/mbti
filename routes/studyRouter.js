@@ -30,4 +30,31 @@ router.post("/",asyncHandler(async (req, res)=> {
     }
 }))
 
+router.put("/:userId",asyncHandler(async (req, res)=> {
+    Group.findOneAndUpdate({_id: req.session.userId}, {
+        $set:{
+            title: req.body.title,
+            userCount: req.body.userCount,
+            mbti: req.body.mbti
+        },function(err){
+                if(err){
+                    createError(400,"update err")
+                }
+            }
+        }
+    )
+}))
+
+//스터디그룹 삭제
+router.delete('/:userId', asyncHandler(async(req, res)=>{
+    Group.findOneAndRemove({_id:req.session.userId}, (err)=> {
+        if(err){
+            createError(400, "delete err")
+        }
+    })
+}))
+
+//스터디 그룹 가져오기
+
+
 module.exports = router;
