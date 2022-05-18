@@ -58,6 +58,9 @@ router.post("/:groupId/enroll", requiredLogin, asyncHandler(async (req, res)=> {
     if (group.participants.includes(user._id)) {
         throw createError(400, "이미 스터디그룹에 포함되어 있습니다.");
     }
+    if(!group.mbti.includes(user.mbti)) {
+        throw createError(400, "해당 mbti는 접근할 수 없습니다.");
+    }
     group.participants.push(user);
     await group.save();
     res.json(createResponse(res));
@@ -74,5 +77,25 @@ router.post("/:groupId/unenroll", requiredLogin, asyncHandler(async (req, res)=>
     const groupA = await Group.findOne({_id : groupId});
     res.json(createResponse(res, groupA));
 }))
+
+router.get("/", asyncHandler(async (req, res)=> {
+    const {query: {location}} = req;
+    const groups = location ? await Group.find({location}) : await Group.find();
+    res.json(createResponse(res, groups));
+}))
+
+router.get("/:groupId", asyncHandler(async (req, res)=> {
+    const { params: {groupId} } = req;
+    const group = await Group.find({_id : groupId});
+    res.json(createResponse(res, group));
+}))
+
+router.get("/user/me", requiredLogin, asyncHandler(async (req, res)=> {
+    const { user } = req;
+    const group = await Group.find({writer: user});
+    res.json(createResponse(res, group));
+}))
+
+
 
 module.exports = router;

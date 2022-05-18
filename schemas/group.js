@@ -25,7 +25,6 @@ const groupSchema = new Schema({
     }],
     mbti: [{ //원하는 mbti
         type: String,
-        required: true
     }],
     createdAt: {
         type: Date,

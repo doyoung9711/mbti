@@ -5,6 +5,8 @@ const createError = require('http-errors');
 const asyncHandler = require('express-async-handler');
 const Post = require("../schemas/post");
 const Group = require("../schemas/group")
+const {requiredLogin} = require("../middlewares/auth");
+const {createResponse} = require("../util/response");
 
 //회원가입
 router.post("/join", asyncHandler(async (req, res) => {
@@ -58,23 +60,9 @@ router.get("/logout", asyncHandler(async (req, res) => {
 }))
 
 //사용자정보 get
-router.get("/me", asyncHandler(async(req, res)=>{
-    if(!req.session.userId) {
-        throw createError({
-            status: 400,
-            message: 'userid없음',
-            data: null})
-    }else{
-        const finduser = await User.findOne({
-            where: {_id: req.session.userId}
-        }).catch((err)=> res.json(err));
-
-        res.json({
-            data: finduser,
-            success: true,
-            status: 200
-        })
-    }
+router.get("/me", requiredLogin, asyncHandler(async(req, res)=>{
+    const {user} = req;
+    res.json(createResponse(res, user));
 }))
 
 module.exports = router;

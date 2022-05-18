@@ -29,6 +29,8 @@ app.use(express.urlencoded({extended:true}));
 
 app.use("/user", require("./routes/userRouter"));
 app.use("/study", require("./routes/studyRouter"));
+app.use("/study", require("./routes/postRouter"));
+app.use("/test", require("./routes/testRouter"));
 const createError = require('http-errors');
 
 app.use((req, res, next) => next(createError(404)));
