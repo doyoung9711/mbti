@@ -17,7 +17,6 @@ const userSchema = new Schema({
     },
     mbti: {
       type: String,
-      required: true
     },
     createdAt: {
         type: Date,

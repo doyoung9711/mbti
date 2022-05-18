@@ -19,14 +19,14 @@ const groupSchema = new Schema({
         type: Number,
         required: true,
     },
-    Participants : [{ // 참가자들
+    participants : [{ // 참가자들
         type: Schema.Types.ObjectId,
         ref: 'User',
     }],
-    mbti: { //원하는 mbti
+    mbti: [{ //원하는 mbti
         type: String,
         required: true
-    },
+    }],
     createdAt: {
         type: Date,
         default: Date.now

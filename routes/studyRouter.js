@@ -5,29 +5,74 @@ const asyncHandler = require('express-async-handler');
 const User = require("../schemas/user")
 const Post = require("../schemas/post");
 const Group = require("../schemas/group")
-
+const {createResponse} = require("../util/response")
+const {requiredLogin} = require("../middlewares/auth");
 //스터디그룹 생성
-router.post("/",asyncHandler(async (req, res)=> {
+router.post("/", requiredLogin, asyncHandler(async (req, res)=> {
+    const {user} = req;
     let obj = {title: req.body.title}
     let group = await Group.findOne(obj);
-
     if(group){
         throw createError(400, "해당 그룹이름이 이미 존재합니다.")
     } else {
         obj = {
-            writer: await User.findOne({_id: req.session.userId}),
+            writer: user,
             title: req.body.title,
             userCount: req.body.userCount,
-            mbti: req.body.mbti //원하는 mbti
+            mbti: req.body.mbti, //원하는 mbti
+            location: req.body.location
         }
         group = new Group(obj);
+        group.participants.push(user);
         await group.save();
-        res.json({
-            success: true,
-            status: 200,
-            message: "그룹을 생성했습니다."
-        })
+        res.json(createResponse(res, group));
     }
+}))
+
+router.put("/:groupId",requiredLogin, asyncHandler(async (req, res)=> {
+    const {params: {groupId}, body, user} = req;
+    const group = await Group.findOne({_id: groupId})
+    if(String(user._id) !== String(group.writer)) {
+        throw createError(400, "해당 권한이 없습니다.")
+    }
+    await Group.updateOne({_id : groupId}, body);
+    res.json(createResponse(res));
+}))
+
+router.delete("/:groupId", requiredLogin, asyncHandler(async (req, res)=> {
+    const {params: {groupId}, user} = req;
+    const group = await Group.findOne({_id : groupId});
+    if(String(user._id) !== String(group.writer)) {
+        throw createError(400, "해당 권한이 없습니다.")
+    }
+    await Group.deleteOne({_id : groupId});
+    res.json(createResponse(res));
+}))
+
+router.post("/:groupId/enroll", requiredLogin, asyncHandler(async (req, res)=> {
+    const {params: {groupId}, user} = req;
+    const group = await Group.findOne({_id : groupId}).populate("writer");
+    if(group.participants.length >= group.userCount) {
+        throw createError(400, "이미 스터디그룹의 정원이 꽉찼습니다.");
+    }
+    if (group.participants.includes(user._id)) {
+        throw createError(400, "이미 스터디그룹에 포함되어 있습니다.");
+    }
+    group.participants.push(user);
+    await group.save();
+    res.json(createResponse(res));
+}))
+
+router.post("/:groupId/unenroll", requiredLogin, asyncHandler(async (req, res)=> {
+    const {params: {groupId}, user} = req;
+    const group = await Group.findOne({_id : groupId});
+    const idx = group.participants.indexOf(user._id);
+    if (idx !== -1) {
+        group.participants.splice(idx, 1);
+    }
+    await group.save();
+    const groupA = await Group.findOne({_id : groupId});
+    res.json(createResponse(res, groupA));
 }))
 
 module.exports = router;
