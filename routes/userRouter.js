@@ -52,6 +52,7 @@ router.post("/login", asyncHandler(async (req, res) => {
     }
 }))
 
+// 로그아웃
 router.get("/logout", asyncHandler(async (req, res) => {
     req.session.destroy(() => {
         res.json({ data: null, success: true, status: 200})
@@ -66,3 +67,4 @@ router.get("/me", requiredLogin, asyncHandler(async(req, res)=>{
 }))
 
 module.exports = router;
+ㅎ

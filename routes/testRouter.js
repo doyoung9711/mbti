@@ -7,7 +7,8 @@ const Post = require("../schemas/post");
 const Group = require("../schemas/group")
 const {createResponse} = require("../util/response")
 const {requiredLogin} = require("../middlewares/auth");
-//스터디그룹 생성
+
+// mbti 테스트
 router.post("/", requiredLogin, asyncHandler(async (req, res)=> {
     const { body :{test}, user } = req;
     let count1 = 0, count2 = 0;

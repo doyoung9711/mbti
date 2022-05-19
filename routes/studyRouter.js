@@ -7,6 +7,7 @@ const Post = require("../schemas/post");
 const Group = require("../schemas/group")
 const {createResponse} = require("../util/response")
 const {requiredLogin} = require("../middlewares/auth");
+
 //스터디그룹 생성
 router.post("/", requiredLogin, asyncHandler(async (req, res)=> {
     const {user} = req;
@@ -29,6 +30,7 @@ router.post("/", requiredLogin, asyncHandler(async (req, res)=> {
     }
 }))
 
+// 스터디 그룹 수정
 router.put("/:groupId",requiredLogin, asyncHandler(async (req, res)=> {
     const {params: {groupId}, body, user} = req;
     const group = await Group.findOne({_id: groupId})
@@ -39,6 +41,7 @@ router.put("/:groupId",requiredLogin, asyncHandler(async (req, res)=> {
     res.json(createResponse(res));
 }))
 
+// 스터디 그룹 삭제
 router.delete("/:groupId", requiredLogin, asyncHandler(async (req, res)=> {
     const {params: {groupId}, user} = req;
     const group = await Group.findOne({_id : groupId});
@@ -49,6 +52,7 @@ router.delete("/:groupId", requiredLogin, asyncHandler(async (req, res)=> {
     res.json(createResponse(res));
 }))
 
+// 스터디 그룹 신청
 router.post("/:groupId/enroll", requiredLogin, asyncHandler(async (req, res)=> {
     const {params: {groupId}, user} = req;
     const group = await Group.findOne({_id : groupId}).populate("writer");
@@ -66,6 +70,7 @@ router.post("/:groupId/enroll", requiredLogin, asyncHandler(async (req, res)=> {
     res.json(createResponse(res));
 }))
 
+// 스터디그룹 탈퇴
 router.post("/:groupId/unenroll", requiredLogin, asyncHandler(async (req, res)=> {
     const {params: {groupId}, user} = req;
     const group = await Group.findOne({_id : groupId});
@@ -78,18 +83,21 @@ router.post("/:groupId/unenroll", requiredLogin, asyncHandler(async (req, res)=>
     res.json(createResponse(res, groupA));
 }))
 
+// 스터디그룹들 가져오기
 router.get("/", asyncHandler(async (req, res)=> {
     const {query: {location}} = req;
     const groups = location ? await Group.find({location}) : await Group.find();
     res.json(createResponse(res, groups));
 }))
 
+// 스터디그룹 하나 가져오기
 router.get("/:groupId", asyncHandler(async (req, res)=> {
     const { params: {groupId} } = req;
     const group = await Group.find({_id : groupId});
     res.json(createResponse(res, group));
 }))
 
+// 스터디그룹 중 내가 속한 그룹 가져오기
 router.get("/user/me", requiredLogin, asyncHandler(async (req, res)=> {
     const { user } = req;
     const group = await Group.find({writer: user});

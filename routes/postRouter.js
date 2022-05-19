@@ -9,6 +9,7 @@ const {createResponse} = require("../util/response")
 const {requiredLogin} = require("../middlewares/auth");
 
 
+// 그룹 내 게시글 생성
 router.post("/:groupId/post", requiredLogin, asyncHandler(async (req, res)=> {
     const {params: {groupId}, user, body} = req;
     const group = await Group.findOne({_id : groupId});
@@ -21,6 +22,7 @@ router.post("/:groupId/post", requiredLogin, asyncHandler(async (req, res)=> {
     res.json(createResponse(res, post));
 }))
 
+// 그룹 내 게시글 수정
 router.put("/:groupId/post/:postId", requiredLogin, asyncHandler(async (req, res)=> {
     const {params: {groupId, postId}, user, body} = req;
     const group = await Group.findOne({_id : groupId});
@@ -35,6 +37,7 @@ router.put("/:groupId/post/:postId", requiredLogin, asyncHandler(async (req, res
     res.json(createResponse(res));
 }))
 
+// 그룹 내 게시글 삭제
 router.delete("/:groupId/post/:postId", requiredLogin, asyncHandler(async (req, res)=> {
     const {params: {groupId, postId}, user} = req;
     const group = await Group.findOne({_id : groupId});
@@ -49,6 +52,7 @@ router.delete("/:groupId/post/:postId", requiredLogin, asyncHandler(async (req, 
     res.json(createResponse(res));
 }))
 
+// 그룹 내 게시글들 가져오기
 router.get("/:groupId/posts", requiredLogin, asyncHandler(async (req, res)=> {
     const {params: {groupId}} = req;
     const group = await Group.findOne({_id : groupId});
@@ -59,6 +63,7 @@ router.get("/:groupId/posts", requiredLogin, asyncHandler(async (req, res)=> {
     res.json(createResponse(res, posts));
 }))
 
+// 그룹 내 게시글 하나 가져오기
 router.get("/:groupId/post/:postId", requiredLogin, asyncHandler(async (req, res)=> {
     const {params: {groupId, postId}} = req;
     const group = await Group.findOne({_id : groupId});
