@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 const session = require('express-session');
 const connect = require('./schemas');
-
+const morgan = require('morgan');
 connect();
 
 const corsOptions = {
@@ -22,7 +22,7 @@ app.use(
         }
     })
 )
-
+app.use(morgan("dev"));
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));

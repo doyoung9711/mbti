@@ -59,7 +59,7 @@ router.get("/:groupId/posts", requiredLogin, asyncHandler(async (req, res)=> {
     if(!group) {
         new createError(404, "해당 스터디그룹이 존재하지 않습니다.");
     }
-    const posts = await Post.find({group});
+    const posts = await Post.find({group}).populate('writer').sort('-createdAt');
     res.json(createResponse(res, posts));
 }))
 

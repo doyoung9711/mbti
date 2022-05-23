@@ -84,9 +84,10 @@ router.post("/:groupId/unenroll", requiredLogin, asyncHandler(async (req, res)=>
 }))
 
 // 스터디그룹들 가져오기
-router.get("/", asyncHandler(async (req, res)=> {
-    const {query: {location}} = req;
-    const groups = location ? await Group.find({location}) : await Group.find();
+router.get("/", requiredLogin, asyncHandler(async (req, res)=> {
+    const {query: {location}, user} = req;
+
+    const groups = location != "전체" ? await Group.find({location, participants: {$nin : user}}).sort('-createdAt') : await Group.find({participants: {$nin : user}}).sort('-createdAt');
     res.json(createResponse(res, groups));
 }))
 
@@ -100,7 +101,7 @@ router.get("/:groupId", asyncHandler(async (req, res)=> {
 // 스터디그룹 중 내가 속한 그룹 가져오기
 router.get("/user/me", requiredLogin, asyncHandler(async (req, res)=> {
     const { user } = req;
-    const group = await Group.find({writer: user});
+    const group = await Group.find({participants: {$in : user}}).sort('-createdAt');
     res.json(createResponse(res, group));
 }))
 

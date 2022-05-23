@@ -67,4 +67,3 @@ router.get("/me", requiredLogin, asyncHandler(async(req, res)=>{
 }))
 
 module.exports = router;
-ㅎ
